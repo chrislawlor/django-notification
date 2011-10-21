@@ -11,7 +11,7 @@ Integrating notification support into your app is a simple three-step process.
 Creating Notice Types
 =====================
 
-You need to call ``create_notice_type(label, display, description)`` once to
+You need to call ``NoticeType.create(label, display, description)`` once to
 create the notice types for your application in the database. ``label`` is just
 the internal shortname that will be used for the type, ``display`` is what the
 user will see as the name of the notification type and `description` is a
@@ -29,15 +29,16 @@ Here is an example::
     from django.utils.translation import ugettext_noop as _
     
     if "notification" in settings.INSTALLED_APPS:
-        from notification import models as notification
+        from notification.models import NoticeType
         
         def create_notice_types(app, created_models, verbosity, **kwargs):
-            notification.create_notice_type("friends_invite", _("Invitation Received"), _("you have received an invitation"))
-            notification.create_notice_type("friends_accept", _("Acceptance Received"), _("an invitation you sent has been accepted"))
+            NoticeType.create("friends_invite", _("Invitation Received"), _("you have received an invitation"))
+            NoticeType.create("friends_accept", _("Acceptance Received"), _("an invitation you sent has been accepted"))
             
         signals.post_syncdb.connect(create_notice_types, sender=notification)
     else:
         print "Skipping creation of NoticeTypes as notification app not found"
+
 
 Notice that the code is wrapped in a conditional clause so if
 django-notification is not installed, your app will proceed anyway.
@@ -49,10 +50,12 @@ management command and use django-notification's i18n capabilities.
 Notification templates
 ======================
 
-There are four different templates that can to be written for the actual content of the notices:
+There are six different templates that can to be written for the actual content of the notices:
 
-  * ``short.txt`` is a very short, text-only version of the notice (suitable for things like email subjects)
-  * ``full.txt`` is a longer, text-only version of the notice (suitable for things like email bodies)
+  * ``short.txt`` is a very short, text-only version of the notice.
+  * ``full.txt`` is a longer, text-only version of the notice.
+  * ``email_body.txt`` is used to render the body of a notification email, usually including a link back to the site.
+  * ``email_subject.txt``  is used to render the subject of a notification email.
   * ``notice.html`` is a short, html version of the notice, displayed in a user's notice list on the website
   * ``full.html`` is a long, html version of the notice (not currently used for anything)
 
